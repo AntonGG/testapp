@@ -9,6 +9,7 @@ import android.provider.BaseColumns;
 
 import com.microimpuls.test.testapp.UserInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.microimpuls.test.testapp.database.StaticDatabase.HOBBIES_KEY_NAME;
@@ -51,7 +52,9 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
         values.put(USERS_KEY_USER_ID, userId);
         values.put(USERS_KEY_FIRST_NAME, username);
         values.put(USERS_KEY_AGE, age);
-        return db.insert(USERS_TABLE_NAME, null, values);
+        long id = db.insert(USERS_TABLE_NAME, null, values);
+        db.close();
+        return id;
     }
 
     @Override
@@ -61,6 +64,54 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
 
     @Override
     public UserInfo getUserInfo(long id) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor crUserInfo = db.rawQuery("select * from " + USERS_TABLE_NAME +
+                " where user_id = " + id + ";", null);
+
+        Cursor crUserHobbies = db.rawQuery("select hobbies.name from hobbies" +
+                " inner join users_hobbies on hobbies.id = users_hobbies.hobbie_id" +
+                " where user_id = " + id + ";", null);
+
+        Cursor crUserSkills = db.rawQuery("select skills.skill_name, skills.skill_level" +
+                " from hobbies" +
+                " inner join users_skills on skills.id = users_skills.skills_id" +
+                " where user_id = " + id + ";", null);
+
+        UserInfo userInfo;
+
+        if (crUserInfo.moveToFirst()) {
+            int cFN = crUserInfo.getColumnIndex(USERS_KEY_FIRST_NAME);
+            int cLN = crUserInfo.getColumnIndex(USERS_KEY_LAST_NAME);
+            int cAge = crUserInfo.getColumnIndex(USERS_KEY_AGE);
+            int cEmail = crUserInfo.getColumnIndex(USERS_KEY_EMAIL);
+            int cPhone = crUserInfo.getColumnIndex(USERS_KEY_PHONE);
+
+            String fname = crUserInfo.getString(cFN);
+            String lname = crUserInfo.getString(cLN);
+            String email = crUserInfo.getString(cEmail);
+            String phone = crUserInfo.getString(cPhone);
+            int age = crUserInfo.getInt(cAge);
+            List<String> hobbies = new ArrayList<>();
+
+
+            if (crUserHobbies.moveToFirst()) {
+                do {
+                    int cName = crUserHobbies.getColumnIndex(HOBBIES_KEY_NAME);
+                    hobbies.add(crUserHobbies.getString(cName));
+                } while (crUserHobbies.moveToNext());
+            }
+
+
+            userInfo = new UserInfo(hobbies, phone,
+                    email, null, age, lname, fname, (int) id);
+
+
+            crUserSkills.close();
+            crUserHobbies.close();
+            crUserInfo.close();
+            return userInfo;
+        }
         return null;
     }
 
