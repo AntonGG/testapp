@@ -1,7 +1,11 @@
 package com.microimpuls.test.testapp.jsonbin;
 
+import android.util.Log;
+
+import com.microimpuls.test.testapp.App;
 import com.microimpuls.test.testapp.Skill;
 import com.microimpuls.test.testapp.UserInfo;
+import com.microimpuls.test.testapp.database.Database;
 import com.microimpuls.test.testapp.jsonbin.json_models.User;
 import com.microimpuls.test.testapp.jsonbin.json_models.Users;
 
@@ -13,8 +17,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
 public class Jsonbin {
-    private static Api api = RetrofitClient.getInstance().getApi();
     public static BehaviorSubject<List<UserInfo>> usersSubject = BehaviorSubject.create();
+    private static Api api = RetrofitClient.getInstance().getApi();
+    private static Database database = new Database(App.getAppContext());
 
     public static void loadData() {
         api.getUserList().retry(3).subscribe(new Observer<Users>() {
@@ -40,12 +45,14 @@ public class Jsonbin {
                             user.getFirstName(),
                             user.getId()));
                 }
+                database.addUsers(userInfoList);
                 usersSubject.onNext(userInfoList);
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Log.e("RETROFIT", e.getMessage());
+                e.printStackTrace();
             }
 
             @Override

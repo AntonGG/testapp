@@ -29,7 +29,7 @@ public class RetrofitClient {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("https://api.jsonbin.io/b/")
+                .baseUrl("http://api.jsonbin.io/b/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .build();
