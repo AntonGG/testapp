@@ -15,7 +15,6 @@ public class UserInfo extends BasicUserInfo {
     public UserInfo(List<String> hobbies,
                     String phoneNumber,
                     String email,
-                    List<Skill> skills,
                     Integer age, String lastName, String firstName, Integer id) {
         super(id, firstName);
         this.hobbies = hobbies;
