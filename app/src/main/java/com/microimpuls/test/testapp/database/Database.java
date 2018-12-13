@@ -1,5 +1,6 @@
 package com.microimpuls.test.testapp.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,9 +33,10 @@ import static com.microimpuls.test.testapp.database.StaticDatabase.USERS_TABLE_N
 public class Database implements UsersDataSource<UserInfo>, BaseColumns {
     private static final String DATABASE_NAME = "test_app_database";
     private static final int DATABASE_VERSION = 18;
+    private final DatabaseOpenHelper dbHelper;
 
     public Database(Context context) {
-        DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(context);
+        dbHelper = new DatabaseOpenHelper(context);
     }
 
     @Override
@@ -44,7 +46,12 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
 
     @Override
     public long addUser(long userId, String username, int age) {
-        return 0;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(USERS_KEY_USER_ID, userId);
+        values.put(USERS_KEY_FIRST_NAME, username);
+        values.put(USERS_KEY_AGE, age);
+        return db.insert(USERS_TABLE_NAME, null, values);
     }
 
     @Override
@@ -57,9 +64,9 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
         return null;
     }
 
-    private void createUsersTable(SQLiteDatabase db) {
+    private void createTables(SQLiteDatabase db) {
         String CREATE_USERS_TABLE_STRING = "CREATE TABLE " + USERS_TABLE_NAME + " ( " +
-                _ID + " INTEGER PRIMARY KEY, " +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 USERS_KEY_USER_ID + " INTEGER, " +
                 USERS_KEY_FIRST_NAME + " TEXT, " +
                 USERS_KEY_LAST_NAME + " TEXT, " +
@@ -68,23 +75,23 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
                 USERS_KEY_AGE + " INTEGER );";
 
         String CREATE_HOBBIES_TABLE_STRING = "CREATE TABLE " + HOBBIES_TABLE_NAME + " ( " +
-                _ID + " INTEGER PRIMARY KEY, " +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 HOBBIES_KEY_NAME + " TEXT );";
 
         String CREATE_SKILLS_TABLE_STRING = "CREATE TABLE " + SKILLS_TABLE_NAME + " ( " +
-                _ID + " INTEGER PRIMARY KEY, " +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 SKILLS_KEY_SKILL_NAME + " TEXT, " +
                 SKILLS_KEY_SKILL_LEVEL + " INTEGER );";
 
         String CREATE_USER_HOBBIES_TABLE_STRING = "CREATE TABLE " + USERS_HOBBIES_TABLE_NAME + " ( " +
-                _ID + " INTEGER PRIMARY KEY, " +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 USERS_HOBBIES_KEY_USER_ID + " INTEGER, " +
                 USERS_HOBBIES_KEY_HOBBIES_ID + " INTEGER, " +
                 "FOREIGN KEY(" + USERS_HOBBIES_KEY_USER_ID + ") REFERENCES " + USERS_TABLE_NAME + "(" + _ID + "), " +
                 "FOREIGN KEY(" + USERS_HOBBIES_KEY_HOBBIES_ID + ") REFERENCES " + HOBBIES_TABLE_NAME + "(" + _ID + "));";
 
         String CREATE_USER_SKILLS_TABLE_STRING = "CREATE TABLE " + USERS_SKILLS_TABLE_NAME + " ( " +
-                _ID + " INTEGER PRIMARY KEY, " +
+                _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 USERS_SKILLS_KEY_USER_ID + " INTEGER, " +
                 USERS_SKILLS_KEY_SKILLS_ID + " INTEGER, " +
                 "FOREIGN KEY(" + USERS_SKILLS_KEY_USER_ID + ") REFERENCES " + USERS_TABLE_NAME + "(" + _ID + "), " +
@@ -98,11 +105,11 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
     }
 
     private void dropTables(SQLiteDatabase db) {
-        String DROP_USERS_TABLE_STRING = "DROP TABLE " + USERS_TABLE_NAME + ";";
-        String DROP_HOBBIES_TABLE_STRING = "DROP TABLE " + HOBBIES_TABLE_NAME + ";";
-        String DROP_SKILLS_TABLE_STRING = "DROP TABLE " + SKILLS_TABLE_NAME + ";";
-        String DROP_USERS_HOBBIES_TABLE_STRING = "DROP TABLE " + USERS_HOBBIES_TABLE_NAME + ";";
-        String DROP_USERS_SKILLS_TABLE_STRING = "DROP TABLE " + USERS_SKILLS_TABLE_NAME + ";";
+        String DROP_USERS_TABLE_STRING = "DROP TABLE IF EXISTS " + USERS_TABLE_NAME + ";";
+        String DROP_HOBBIES_TABLE_STRING = "DROP TABLE IF EXISTS " + HOBBIES_TABLE_NAME + ";";
+        String DROP_SKILLS_TABLE_STRING = "DROP TABLE IF EXISTS " + SKILLS_TABLE_NAME + ";";
+        String DROP_USERS_HOBBIES_TABLE_STRING = "DROP TABLE IF EXISTS " + USERS_HOBBIES_TABLE_NAME + ";";
+        String DROP_USERS_SKILLS_TABLE_STRING = "DROP TABLE IF EXISTS " + USERS_SKILLS_TABLE_NAME + ";";
 
         db.execSQL(DROP_USERS_HOBBIES_TABLE_STRING);
         db.execSQL(DROP_USERS_SKILLS_TABLE_STRING);
@@ -119,12 +126,13 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            createUsersTable(db);
+            createTables(db);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+            dropTables(db);
+            createTables(db);
         }
     }
 }
