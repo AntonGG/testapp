@@ -4,9 +4,6 @@ public class Skill {
     private Integer skillLevelAssessment;
     private String skillName;
 
-    public Skill() {
-    }
-
     public Skill(Integer skillLevelAssessment, String skillName) {
         this.skillLevelAssessment = skillLevelAssessment;
         this.skillName = skillName;
