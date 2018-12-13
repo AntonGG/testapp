@@ -1,7 +1,9 @@
 package com.microimpuls.test.testapp.database;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 import com.microimpuls.test.testapp.UserInfo;
@@ -27,10 +29,16 @@ import static com.microimpuls.test.testapp.database.StaticDatabase.USERS_SKILLS_
 import static com.microimpuls.test.testapp.database.StaticDatabase.USERS_SKILLS_TABLE_NAME;
 import static com.microimpuls.test.testapp.database.StaticDatabase.USERS_TABLE_NAME;
 
-public class Database implements UsersDataSource, BaseColumns {
+public class Database implements UsersDataSource<UserInfo>, BaseColumns {
+    private static final String DATABASE_NAME = "test_app_database";
+    private static final int DATABASE_VERSION = 18;
+
+    public Database(Context context) {
+        DatabaseOpenHelper databaseOpenHelper = new DatabaseOpenHelper(context);
+    }
 
     @Override
-    public long addUsers(List users) {
+    public long addUsers(List<UserInfo> users) {
         return 0;
     }
 
@@ -101,5 +109,22 @@ public class Database implements UsersDataSource, BaseColumns {
         db.execSQL(DROP_USERS_TABLE_STRING);
         db.execSQL(DROP_HOBBIES_TABLE_STRING);
         db.execSQL(DROP_SKILLS_TABLE_STRING);
+    }
+
+    private class DatabaseOpenHelper extends SQLiteOpenHelper {
+
+        private DatabaseOpenHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            createUsersTable(db);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        }
     }
 }

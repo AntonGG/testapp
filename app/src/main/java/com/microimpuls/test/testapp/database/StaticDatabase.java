@@ -24,6 +24,4 @@ class StaticDatabase {
     //static final String USERS_SKILLS_KEY_ID = _ID;
     static final String USERS_SKILLS_KEY_USER_ID = "user_id";
     static final String USERS_SKILLS_KEY_SKILLS_ID = "skills_id";
-    private static final String DATABASE_NAME = "test_app_database";
-    private static final int DATABASE_VERSION = 18;
 }
