@@ -21,6 +21,10 @@ public class Jsonbin {
     private static Api api = RetrofitClient.getInstance().getApi();
     private static Database database = new Database(App.getAppContext());
 
+    public static void loadDataFromDb() {
+        usersSubject.onNext(database.getUsersList());
+    }
+
     public static void loadData() {
         api.getUserList().retry(3).subscribe(new Observer<Users>() {
             @Override
