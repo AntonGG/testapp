@@ -11,7 +11,6 @@ import android.view.View;
 import com.microimpuls.test.testapp.R;
 import com.microimpuls.test.testapp.UserInfo;
 import com.microimpuls.test.testapp.adapter.UsersAdapter;
-import com.microimpuls.test.testapp.database.Database;
 import com.microimpuls.test.testapp.jsonbin.Jsonbin;
 
 import java.util.List;
@@ -61,12 +60,6 @@ public class UsersListActivity extends AppCompatActivity implements UsersAdapter
 
                     }
                 });
-
-        Database database = new Database(this);
-        UserInfo userInfo = database.getUserInfo(6);
-        Log.d("My debug", "onCreate: " +
-                userInfo.getFirstName() + " " +
-                userInfo.getLastName() + " ");
     }
 
     public void loadData(View view) {
