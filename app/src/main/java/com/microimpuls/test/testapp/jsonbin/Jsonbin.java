@@ -16,13 +16,18 @@ import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
 
-public class Jsonbin {
-    public static BehaviorSubject<List<UserInfo>> usersSubject = BehaviorSubject.create();
-    private static Api api = RetrofitClient.getInstance().getApi();
-    private static Database database = new Database(App.getAppContext());
+public final class Jsonbin {
+    public final static BehaviorSubject<List<UserInfo>> usersSubject = BehaviorSubject.create();
+    private final static Api api = RetrofitClient.getInstance().getApi();
+    private final static Database database = new Database(App.getAppContext());
 
     public static void loadDataFromDb() {
-        usersSubject.onNext(database.getUsersList());
+        List<UserInfo> userInfoList = database.getUsersList();
+        if (userInfoList.isEmpty()) {
+            loadData();
+            return;
+        }
+        usersSubject.onNext(userInfoList);
     }
 
     public static void loadData() {
@@ -55,8 +60,7 @@ public class Jsonbin {
 
             @Override
             public void onError(Throwable e) {
-                Log.e("RETROFIT", e.getMessage());
-                e.printStackTrace();
+                Log.e("Jsonbin", e.getMessage());
             }
 
             @Override

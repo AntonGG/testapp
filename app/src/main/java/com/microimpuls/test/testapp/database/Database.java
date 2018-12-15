@@ -114,20 +114,33 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
 
     @Override
     public List<UserInfo> getUsersList() {
+        return getUsersOrUser(null);
+    }
+
+    @Override
+    public UserInfo getUserInfo(long userId) {
+        return getUsersOrUser(userId).get(0);
+    }
+
+    private List<UserInfo> getUsersOrUser(Long id) {
+        List<UserInfo> userInfoList = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Cursor crUserInfo = db.rawQuery("select * from " + USERS_TABLE_NAME +
-                ";", null);
+        String qUserInfo = "select * from " + USERS_TABLE_NAME;
+        String qUserHobbies = "select hobbies.name from hobbies " +
+                "inner join users_hobbies on hobbies._id = users_hobbies.hobbies_id";
+        String qUserSkills = "select skills.skill_name, skills.skill_level from skills " +
+                "inner join users_skills on skills._id = users_skills.skills_id";
 
-        Cursor crUserHobbies = db.rawQuery("select hobbies.name from hobbies" +
-                        " inner join users_hobbies on hobbies._id = users_hobbies.hobbies_id ;",
-                null);
+        if (id != null) {
+            qUserInfo += " where user_id = " + id;
+            qUserHobbies += " where user_id = " + id;
+            qUserSkills += " where user_id = " + id;
+        }
 
-        Cursor crUserSkills = db.rawQuery("select skills.skill_name, skills.skill_level" +
-                " from skills inner join users_skills " +
-                "on skills._id = users_skills.skills_id ;", null);
-
-        List<UserInfo> userInfoList = new ArrayList<>();
+        Cursor crUserInfo = db.rawQuery(qUserInfo + ";", null);
+        Cursor crUserHobbies = db.rawQuery(qUserHobbies + ";", null);
+        Cursor crUserSkills = db.rawQuery(qUserSkills + ";", null);
 
         if (crUserInfo.moveToFirst()) {
             int cId = crUserInfo.getColumnIndex(USERS_HOBBIES_KEY_USER_ID);
@@ -138,7 +151,7 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
             int cPhone = crUserInfo.getColumnIndex(USERS_KEY_PHONE);
 
             do {
-                int id = crUserInfo.getInt(cId);
+                int _id = crUserInfo.getInt(cId);
                 String fname = crUserInfo.getString(cFN);
                 String lname = crUserInfo.getString(cLN);
                 String email = crUserInfo.getString(cEmail);
@@ -165,78 +178,15 @@ public class Database implements UsersDataSource<UserInfo>, BaseColumns {
                 }
 
                 userInfoList.add(new UserInfo(hobbies, phone,
-                        email, skills, age, lname, fname, id));
+                        email, skills, age, lname, fname, _id));
             } while (crUserInfo.moveToNext());
 
             crUserSkills.close();
             crUserHobbies.close();
             crUserInfo.close();
         }
+
         return userInfoList;
-    }
-
-    @Override
-    public UserInfo getUserInfo(long id) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        try {
-            Cursor crUserInfo = db.rawQuery("select * from " + USERS_TABLE_NAME +
-                    " where user_id = " + id + ";", null);
-
-            Cursor crUserHobbies = db.rawQuery("select hobbies.name from hobbies" +
-                    " inner join users_hobbies on hobbies._id = users_hobbies.hobbies_id" +
-                    " where user_id = " + id + ";", null);
-
-            Cursor crUserSkills = db.rawQuery("select skills.skill_name, skills.skill_level" +
-                    " from skills" +
-                    " inner join users_skills on skills._id = users_skills.skills_id" +
-                    " where user_id = " + id + ";", null);
-
-            UserInfo userInfo;
-
-            if (crUserInfo.moveToFirst()) {
-                int cFN = crUserInfo.getColumnIndex(USERS_KEY_FIRST_NAME);
-                int cLN = crUserInfo.getColumnIndex(USERS_KEY_LAST_NAME);
-                int cAge = crUserInfo.getColumnIndex(USERS_KEY_AGE);
-                int cEmail = crUserInfo.getColumnIndex(USERS_KEY_EMAIL);
-                int cPhone = crUserInfo.getColumnIndex(USERS_KEY_PHONE);
-
-                String fname = crUserInfo.getString(cFN);
-                String lname = crUserInfo.getString(cLN);
-                String email = crUserInfo.getString(cEmail);
-                String phone = crUserInfo.getString(cPhone);
-                int age = crUserInfo.getInt(cAge);
-
-                List<String> hobbies = new ArrayList<>();
-                List<Skill> skills = new ArrayList<>();
-
-                if (crUserHobbies.moveToFirst()) {
-                    int cName = crUserHobbies.getColumnIndex(HOBBIES_KEY_NAME);
-                    do {
-                        hobbies.add(crUserHobbies.getString(cName));
-                    } while (crUserHobbies.moveToNext());
-                }
-
-                if (crUserSkills.moveToFirst()) {
-                    int cSkillName = crUserSkills.getColumnIndex(SKILLS_KEY_SKILL_NAME);
-                    int cSkillLevel = crUserSkills.getColumnIndex(SKILLS_KEY_SKILL_LEVEL);
-                    do {
-                        skills.add(new Skill(crUserSkills.getInt(cSkillLevel),
-                                crUserSkills.getString(cSkillName)));
-                    } while (crUserSkills.moveToNext());
-                }
-
-                userInfo = new UserInfo(hobbies, phone,
-                        email, skills, age, lname, fname, (int) id);
-
-                crUserSkills.close();
-                crUserHobbies.close();
-                crUserInfo.close();
-                return userInfo;
-            }
-        } finally {
-            db.close();
-        }
-        throw new UnsupportedOperationException();
     }
 
     private void createTables(SQLiteDatabase db) {

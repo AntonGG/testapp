@@ -46,13 +46,12 @@ public class UsersListActivity extends AppCompatActivity implements UsersAdapter
 
                     @Override
                     public void onNext(List<UserInfo> users) {
-                        Log.d("My Debug", "Кол-во пользователей " + users.size());
                         usersAdapter.setItem(users);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-
+                        Log.e("UsersListActivity", e.getMessage());
                     }
 
                     @Override
@@ -68,7 +67,6 @@ public class UsersListActivity extends AppCompatActivity implements UsersAdapter
 
     @Override
     public void onItemClick(UserInfo userInfo) {
-        //   Log.d("SSSSSSS", userInfo.getFirstName());
         Provider.usersSubject.onNext(userInfo);
         Intent intent = new Intent(this, UserInfoActivity.class);
         startActivity(intent);

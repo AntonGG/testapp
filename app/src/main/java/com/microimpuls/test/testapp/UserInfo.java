@@ -7,16 +7,17 @@ public class UserInfo extends BasicUserInfo {
     private String phoneNumber;
     private String email;
     private List<Skill> skills;
-    private Integer age;
+    private int age;
     private String lastName;
     private String firstName;
-    private Integer id;
+    private int id;
 
     public UserInfo(List<String> hobbies,
                     String phoneNumber,
                     String email,
                     List<Skill> skills,
-                    Integer age, String lastName, String firstName, Integer id) {
+                    int age, String lastName,
+                    String firstName, int id) {
         super(id, firstName);
         this.hobbies = hobbies;
         this.phoneNumber = phoneNumber;
@@ -44,7 +45,7 @@ public class UserInfo extends BasicUserInfo {
         return skills;
     }
 
-    public Integer getAge() {
+    public int getAge() {
         return age;
     }
 
@@ -56,7 +57,7 @@ public class UserInfo extends BasicUserInfo {
         return firstName;
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 }

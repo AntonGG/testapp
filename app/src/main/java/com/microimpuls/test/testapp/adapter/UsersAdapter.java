@@ -63,7 +63,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
         }
 
         public void bind(UserInfo userInfo) {
-            textId.setText(userInfo.getId().toString());
+            textId.setText(Integer.toString(userInfo.getId()));
             textUsername.setText(userInfo.getFirstName());
         }
 

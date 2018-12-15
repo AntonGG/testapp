@@ -60,7 +60,8 @@ public class UserInfoActivity extends AppCompatActivity {
                         for (Skill skill : userInfo.getSkills()) {
                             Map<String, String> map = new HashMap<>();
                             map.put("skillName", skill.getSkillName());
-                            map.put("skillLevelAssessment", skill.getSkillLevelAssessment().toString());
+                            map.put("skillLevelAssessment",
+                                    Integer.toString(skill.getSkillLevelAssessment()));
                             skillList.add(map);
                         }
 

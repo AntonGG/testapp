@@ -10,8 +10,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class RetrofitClient {
-    private static RetrofitClient retrofitClient = new RetrofitClient();
+public final class RetrofitClient {
+    private final static RetrofitClient retrofitClient = new RetrofitClient();
     private static Api api;
 
     public static RetrofitClient getInstance() {
